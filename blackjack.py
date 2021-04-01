@@ -12,6 +12,8 @@ userWon = False
 compWon = False
 compWins = 0
 userWins = 0
+userMoney = 5000
+userMoneyBeingPutDown = 0
 
 #Build Cards
 for i in range(1,14):
@@ -56,21 +58,71 @@ print("Yay")
 time.sleep(0.5)
 print("Let's begin")
 while True:
-    while (not (userSum > 20)) and (not (computerSum > 20)):
+    while not(computerSum > 20 or userSum > 20):
+        userInput = "2"
+        if userInput == "C" or userInput == "c" or userMoney == 0:
+            if userMoney == 0:
+                print("You have no money")
+                print("The House Has Beat You")
+            sys.exit('Goodbye come again')
+        while not (userInput == "Y" or userInput == "N" or userInput == "D"):
+            print("Your total money is: "+ str(userMoney))
+            if userMoneyBeingPutDown == 0:
+                print("How much are you betting?")
+                while userMoney < userMoneyBeingPutDown or userMoneyBeingPutDown == 0:
+                    userMoneyBeingPutDown = int(input())
 
-        while not userInput == "Y" or userInput == "y" or userInput == "N" or userInput == "n":
-            print("Press Y to draw and Press N to stop")
+            print("Press Y to Hit or Press N to hold or Press D to Double-Hit")
             userInput = str(input())
             if userInput == "C" or userInput == "c":
                 sys.exit('Goodbye come again')
+            if userInput == "D":
+                if userMoney > userMoneyBeingPutDown*2:
+                    userMoneyBeingPutDown *= 2
+                else:
+                    print("You dont have that much money")
+                    userInput = "2"
+
+
         if userInput == "Y" or userInput == "y":
             userPick = picksCard()
             userSum += userPick
             print("You picked a: " + str(userPick))
             print("Your total is " + str(userSum))
-        elif userInput == "N" or userInput == "n":
+        if userInput == "N" or userInput == "n" or userStoppedPlaying:
             userStoppedPlaying = True
-        if compAlgo():
+            if compStoppedPlaying:
+                if 22 > userSum > computerSum:
+                    userWon = True
+                    compWon = False
+                    break
+                elif 22 > computerSum > userSum:
+                    userWon = False
+                    compWon = True
+                    break
+                elif userSum > 21:
+                    compWon = True
+                    break
+                elif computerSum > 21:
+                    userWon = False
+                    break
+            if 22 > computerSum > userSum:
+                compWon = True
+                break
+
+            if userStoppedPlaying and compStoppedPlaying:
+                print("Oh", end="")
+                time.sleep(0.2)
+                print("You both stopped playing")
+                if 22 > userSum > computerSum:
+                    userWon = True
+                    compWon = False
+                    break
+                elif 22 > computerSum > userSum:
+                    userWon = False
+                    compWon = True
+                    break
+        if compAlgo() and not compStoppedPlaying:
             compPick = picksCard()
             computerSum += compPick
             print("Computer picked a: " + str(compPick))
@@ -78,10 +130,20 @@ while True:
         elif not compAlgo():
             compStoppedPlaying = True
 
-        if compStoppedPlaying or userStoppedPlaying or computerSum > 20 or userSum > 20:
+
+
+        if (compStoppedPlaying and userStoppedPlaying) or computerSum > 20 or userSum > 20:
             if computerSum == 21 and userSum == 21:
                 compWon = True
                 userWon = True
+                break
+            elif computerSum > 21 and userSum < 21:
+                compWon = False
+                userWon = True
+                break
+            elif computerSum < 21 and userSum > 21:
+                compWon = True
+                userWon = False
                 break
             elif computerSum == 21:
                 compWon = True
@@ -89,10 +151,10 @@ while True:
             elif userSum == 21:
                 userWon = True
                 break
-            elif compStoppedPlaying and computerSum > userSum:
+            elif computerSum > userSum:
                 compWon = True
                 break
-            elif compStoppedPlaying and computerSum < userSum:
+            elif computerSum < userSum:
                 userWon = True
                 break
         userInput = "1"
@@ -104,15 +166,21 @@ while True:
 
     print("computer total is " + str(computerSum))
     print("user total is " + str(userSum))
-
     if compWon and userWon:
         print("you tied")
     elif compWon:
         print("Computer Wins")
         compWins += 1
+        userMoney -= userMoneyBeingPutDown
     elif userWon:
         print("You won")
         userWins += 1
+        userMoney += userMoneyBeingPutDown
+    elif userMoney == 0:
+        print("that was a bad bet")
+        sys.exit('You lost all your money')
+    print("Your Money is: " + str(userMoney))
+    userMoneyBeingPutDown = 0
 
     computerSum = 0
     userSum = 0
@@ -127,5 +195,28 @@ while True:
     print("")
     print("You " + str(userWins) + " Com "+str(compWins))
     print("")
+    if userMoney >= 100000:
+        print("Woah You basically have beat the house")
+    elif userMoney >= 5000:
+        print("you doing well at beating the house")
+    elif userMoney <= 500:
+        print("You've made big losses quit for your own good")
+    elif userMoney <= 250:
+        print("You're going to run our of money soon")
+    elif userMoney <= 100:
+        print("The House has also beat, Maybe this Game isn't for you")
+    print("Do you want to play again? Yes(Y) or No(N)")
+    print("Press C to exit")
+    userInput = "2"
+    while not (userInput == "Y" or userInput == "y"):
+        userInput = str(input())
+        if userInput == "N":
+            messageForWhenNo = "Oh that's okay press Y when you want to play or C if you want to leave the game"
+            for i in range(0, len(messageForWhenNo)):
+                print(messageForWhenNo[i], end = '')
+                time.sleep(0.0759493670886076)
+            print("")
 
+        if userInput == "C" or userInput == "c":
+            sys.exit('Goodbye come again')
 #Made by TrimlessJay :]
